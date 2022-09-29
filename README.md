@@ -2,7 +2,7 @@
 남양주시립박물관 사이트 크롤링
 
 Table Script
-
+```
 CREATE TABLE `board_nyi` (
   `SEQ` int(11) NOT NULL COMMENT '시퀀스',
   `TITLE` varchar(200) NOT NULL COMMENT '제목',
@@ -14,3 +14,4 @@ CREATE TABLE `board_nyi` (
   `REG_DATE` varchar(20) NOT NULL COMMENT '등록일',
   PRIMARY KEY (`SEQ`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+```
