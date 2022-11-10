@@ -5,6 +5,7 @@ from selenium.webdriver.common.alert import Alert
 from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup as bs
 import time
+from db_manager import DatabaseManager
 
 # 남양주시립박물관(nyj)
 
@@ -12,6 +13,7 @@ base_url = "https://www.nyj.go.kr/museum/4606"
 board_url = "https://www.nyj.go.kr/museum/4572" 
 login_url = "https://www.nyj.go.kr/main/63?referer=https%3A%2F%2Fwww.nyj.go.kr%2Fmuseum%2F4606" 
 
+DATABASE_ID = "local"
 
 driver = webdriver.Chrome(executable_path='C:\hm_py\chromedriver')    # Windows
 
@@ -48,6 +50,8 @@ def crawling():
     board_main = soup.find("tbody",  {"class" : "txtcenter"}) 
     board_body = board_main.find_all("tr")
 
+    datas =[]
+    
     for list in board_body:
         board_list = list.find_all("td")
         board_number = board_list[0].text.strip()               # 글번호_공백제거
@@ -57,10 +61,31 @@ def crawling():
         url = link.get("href")                        
         link_url = "https://www.nyj.go.kr/museum/4572" + url     # 상세 URL
 
-        detail(link_url)
+        detail(board_number, link_url)
 
+        datas.append(detail(board_number, link_url))
+
+
+    if len(datas) > 0:  
+                    db = DatabaseManager(DATABASE_ID)  
+                    db.connection()  
+                    query = '''  
+                            INSERT INTO board_nyj (BD_NUMBER, LINK_URL, TITLE, WRITER, CONTENT, READ_COUNT, REG_DATE, ATTACH_URL)    
+                            VALUES (  
+                                %s,  
+                                %s,  
+                                %s,  
+                                %s,  
+                                %s,
+                                %s,
+                                %s, 
+                                %s  
+                            )  
+                        '''          
+                    db.execute_query_bulk(query, datas)
         
-def detail(link_url):       
+        
+def detail(board_number, link_url):       
     driver.get(link_url)  
          
     detail_html = driver.page_source
@@ -80,6 +105,8 @@ def detail(link_url):
     content = content_body.find("p").text                        # 내용
 
     attach_main = detail_body[4]
+    
+    attach_url = ""
     
     if attach_main.find("ol",  {"class" : "file_list"}) != None:
         attach_body = attach_main.find("ol",  {"class" : "file_list"})
@@ -103,10 +130,13 @@ def detail(link_url):
         reg_date = detail_body[reg_date_no].find("td").text                                     # 등록일
 
 
+    return [board_number, link_url, title, wirter, content, read_count, reg_date, attach_url, ]
+
+
 
 def main():
     
-    login()
+    # login()
 
     crawling()
     
