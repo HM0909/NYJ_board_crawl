@@ -136,7 +136,7 @@ def detail(board_number, link_url):
 
 def main():
     
-    # login()
+    login()
 
     crawling()
     
