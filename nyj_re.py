@@ -54,7 +54,7 @@ def crawling():
     
     for list in board_body:
         board_list = list.find_all("td")
-        board_number = board_list[0].text.strip()               # 글번호_공백제거
+        board_number = board_list[0].text.strip()               # 글번호
 
         data = list.find("td",  {"class" : "txtleft"}) 
         link = data.find("a")
